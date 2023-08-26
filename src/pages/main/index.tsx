@@ -1,4 +1,5 @@
-import { Col, Row } from 'antd';
+import { Col, Divider, Row, Select, Space, Spin } from 'antd';
+import Title from 'antd/es/typography/Title';
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import GameCard from "../../components/card";
@@ -20,16 +21,50 @@ function Main() {
 			});
 	}
 
+	const [ganres, setGenres] = useState<any>([]);
+	const [platforms, setPlatforms] = useState<any>([]);
+
 	useEffect(() => {
 		fetchGames()
-			.then((games: any) => setGames(games));
+			.then((games: any) => {
+				setGames(games);
+
+				const genresSet = new Set<string>();
+				games.map(({ genre }: any) => genresSet.add(genre.trim()));
+				setGenres(Array.from(genresSet, (el: string) => ({ label: el, value: el })))
+
+				const platformsSet = new Set<string>();
+				games.map(({ platform }: any) => platformsSet.add(platform.trim()));
+				setPlatforms(Array.from(platformsSet, (el: string) => ({ label: el, value: el })))
+			});
 	}, []);
 
-	if (!games) return <div>Загружаю игры...</div>;
+	if (!games.length) return <Spin size="large" />;
+
+	const handleChange = (value: string[]) => {
+		console.log(`selected ${value}`);
+	};
 
 	return (
 		<>
-			<h1>Главная</h1>
+			<Title>Главная</Title>
+			<Space>
+				<Select
+					allowClear
+					style={{ width: 300 }}
+					placeholder="Выберите жанр"
+					onChange={handleChange}
+					options={ganres}
+				/>
+				<Select
+					allowClear
+					style={{ width: 300 }}
+					placeholder="Выберите платформу"
+					onChange={handleChange}
+					options={platforms}
+				/>
+			</Space >
+			<Divider />
 			<Row gutter={[20, 20]} justify={'center'}>
 				{games.map(({ title, release_date, publisher, genre, thumbnail, id }) => {
 					return <Link to={'/game/' + id}>
