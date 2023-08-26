@@ -13,7 +13,6 @@ function Main() {
 				'X-RapidAPI-Key': 'ddd1992d06msh69dccc24485ab56p11eed8jsn63b3f65c7074',
 				'X-RapidAPI-Host': 'free-to-play-games-database.p.rapidapi.com'
 			},
-			method: 'GET',
 		})
 			.then(res => res.json())
 			.catch((e) => {
@@ -21,8 +20,11 @@ function Main() {
 			});
 	}
 
-	const [ganres, setGenres] = useState<any>([]);
+	const [genres, setGenres] = useState<any>([]);
 	const [platforms, setPlatforms] = useState<any>([]);
+
+	const sorts: any = [{ label: 'По дате выпуска', value: 'release-date' },
+	{ label: 'По алфавиту', value: 'alphabetical' }, { label: 'По релевантности', value: 'relevance' }];
 
 	useEffect(() => {
 		fetchGames()
@@ -48,27 +50,34 @@ function Main() {
 	return (
 		<>
 			<Title>Главная</Title>
-			<Space>
+			<Space wrap>
 				<Select
 					allowClear
 					style={{ width: 300 }}
-					placeholder="Выберите жанр"
+					placeholder="Жанр"
 					onChange={handleChange}
-					options={ganres}
+					options={genres}
 				/>
 				<Select
 					allowClear
 					style={{ width: 300 }}
-					placeholder="Выберите платформу"
+					placeholder="Платформа"
 					onChange={handleChange}
 					options={platforms}
+				/>
+				<Select
+					allowClear
+					style={{ width: 300 }}
+					placeholder="Сортировка"
+					onChange={handleChange}
+					options={sorts}
 				/>
 			</Space >
 			<Divider />
 			<Row gutter={[20, 20]} justify={'center'}>
 				{games.map(({ title, release_date, publisher, genre, thumbnail, id }) => {
-					return <Link to={'/game/' + id}>
-						<Col key={title}>
+					return <Col key={title}>
+						<Link to={'/game/' + id}>
 							<GameCard
 								name={title}
 								releaseDate={release_date}
@@ -76,8 +85,8 @@ function Main() {
 								genre={genre}
 								img={thumbnail}
 							></GameCard>
-						</Col>
-					</Link>
+						</Link>
+					</Col>
 				})}
 			</Row >
 		</>
