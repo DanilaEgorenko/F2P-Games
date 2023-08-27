@@ -6,6 +6,7 @@ import CarouselList from "../../components/carousel";
 import Description from "../../components/description";
 import Requirements from "../../components/requirements";
 import { KEY } from "../../keys";
+import { fetchRetry } from "../../utils/fetchRetry";
 import { IGame, IScreenshots } from "./interfaces";
 
 function Game() {
@@ -16,15 +17,15 @@ function Game() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchGame = () => {
-    return fetch(`https://free-to-play-games-database.p.rapidapi.com/api/game?id=${id}`, {
+    return fetchRetry(`https://free-to-play-games-database.p.rapidapi.com/api/game?id=${id}`, {
       headers: {
         'X-RapidAPI-Key': KEY,
         'X-RapidAPI-Host': 'free-to-play-games-database.p.rapidapi.com'
       },
     })
       .then(res => {
-        if (res.ok) return res.json();
-        throw new Error(`Ошибка ${res.status}`);
+        if (res?.ok) return res.json();
+        throw new Error(`Ошибка ${res?.status}`);
       })
   }
 

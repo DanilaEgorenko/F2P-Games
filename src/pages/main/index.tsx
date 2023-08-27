@@ -1,9 +1,10 @@
-import { Col, Divider, Row, Select, Space, Spin } from 'antd';
+import { Col, Divider, Result, Row, Select, Space, Spin } from 'antd';
 import Title from 'antd/es/typography/Title';
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import GameCard from "../../components/card";
 import { KEY } from '../../keys';
+import { fetchRetry } from '../../utils/fetchRetry';
 import { genres, platforms, sorts } from './constants';
 import { IGames } from './interfaces';
 
@@ -12,7 +13,7 @@ function Main() {
 
 	const [error, setError] = useState<string>();
 
-	//const [category, setCategory] = useState<string | undefined>();
+	const [category, setCategory] = useState<string | undefined>();
 	const [platform, setPlatform] = useState<string | undefined>();
 	const [sortBy, setSortBy] = useState<string | undefined>();
 
@@ -21,21 +22,21 @@ function Main() {
 	// console.log(category)
 	//const dispatch = useDispatch();
 
-	//const getCategory: string = category ? '&category=' + category : '';
+	const getCategory: string = category ? '&category=' + category : '';
 	const getPlatform: string = platform ? '&platform=' + platform : '';
 	const getSortBy: string = sortBy ? '&sort-by=' + sortBy : '';
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const fetchGames = () => {
-		return fetch(`https://free-to-play-games-database.p.rapidapi.com/api/games?${getPlatform}${getSortBy}`, {
+		return fetchRetry(`https://free-to-play-games-database.p.rapidapi.com/api/games?${getCategory}${getPlatform}${getSortBy}`, {
 			headers: {
 				'X-RapidAPI-Key': KEY,
 				'X-RapidAPI-Host': 'free-to-play-games-database.p.rapidapi.com'
 			},
 		})
 			.then(res => {
-				if (res.ok) return res.json();
-				//throw new Error(`Ошибка ${res.status}`);
+				if (res?.ok) return res.json();
+				throw new Error(`Ошибка ${res?.status}`);
 			})
 			.catch((e: Error) => {
 				setError(e.message);
@@ -49,11 +50,11 @@ function Main() {
 			});
 	}, [fetchGames]);
 
-	// if (error) return <Result
-	// 	status="error"
-	// 	title="Ошибка загрузки"
-	// 	subTitle={error}
-	// />
+	if (error) return <Result
+		status="error"
+		title="Ошибка загрузки"
+		subTitle={error}
+	/>
 
 	if (!games.length) return <Spin className="spin" size="large" />;
 
@@ -65,7 +66,7 @@ function Main() {
 					allowClear
 					style={{ width: 200 }}
 					placeholder="Жанр"
-					onChange={(value: string | undefined) => value}
+					onChange={(value: string | undefined) => setCategory(value)}
 					options={genres}
 				/>
 				<Select
