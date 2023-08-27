@@ -3,12 +3,22 @@ import Title from 'antd/es/typography/Title';
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import GameCard from "../../components/card";
+import { genres, platforms, sorts } from './constants';
 
 function Main() {
 	const [games, setGames] = useState([]);
 
+	const [category, setCategory] = useState<string | undefined>();
+	const [platform, setPlatform] = useState<string | undefined>();
+	const [sortBy, setSortBy] = useState<string | undefined>();
+
+	const getCategory: string = category ? '&category=' + category : '';
+	const getPlatform: string = platform ? '&platform=' + platform : '';
+	const getSortBy: string = sortBy ? '&sort-by=' + sortBy : '';
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const fetchGames = () => {
-		return fetch('https://free-to-play-games-database.p.rapidapi.com/api/games', {
+		return fetch(`https://free-to-play-games-database.p.rapidapi.com/api/games?${getPlatform}${getCategory}${getSortBy}`, {
 			headers: {
 				'X-RapidAPI-Key': 'ddd1992d06msh69dccc24485ab56p11eed8jsn63b3f65c7074',
 				'X-RapidAPI-Host': 'free-to-play-games-database.p.rapidapi.com'
@@ -20,32 +30,14 @@ function Main() {
 			});
 	}
 
-	const [genres, setGenres] = useState<any>([]);
-	const [platforms, setPlatforms] = useState<any>([]);
-
-	const sorts: any = [{ label: 'По дате выпуска', value: 'release-date' },
-	{ label: 'По алфавиту', value: 'alphabetical' }, { label: 'По релевантности', value: 'relevance' }];
-
 	useEffect(() => {
 		fetchGames()
 			.then((games: any) => {
 				setGames(games);
-
-				const genresSet = new Set<string>();
-				games.map(({ genre }: any) => genresSet.add(genre.trim()));
-				setGenres(Array.from(genresSet, (el: string) => ({ label: el, value: el })))
-
-				const platformsSet = new Set<string>();
-				games.map(({ platform }: any) => platformsSet.add(platform.trim()));
-				setPlatforms(Array.from(platformsSet, (el: string) => ({ label: el, value: el })))
 			});
-	}, []);
+	}, [fetchGames]);
 
 	if (!games.length) return <Spin size="large" />;
-
-	const handleChange = (value: string[]) => {
-		console.log(`selected ${value}`);
-	};
 
 	return (
 		<>
@@ -53,23 +45,23 @@ function Main() {
 			<Space wrap>
 				<Select
 					allowClear
-					style={{ width: 300 }}
+					style={{ width: 200 }}
 					placeholder="Жанр"
-					onChange={handleChange}
+					onChange={(value: string | undefined) => setCategory(value)}
 					options={genres}
 				/>
 				<Select
 					allowClear
-					style={{ width: 300 }}
+					style={{ width: 200 }}
 					placeholder="Платформа"
-					onChange={handleChange}
+					onChange={(value: string | undefined) => setPlatform(value)}
 					options={platforms}
 				/>
 				<Select
 					allowClear
-					style={{ width: 300 }}
+					style={{ width: 200 }}
 					placeholder="Сортировка"
-					onChange={handleChange}
+					onChange={(value: string | undefined) => setSortBy(value)}
 					options={sorts}
 				/>
 			</Space >
