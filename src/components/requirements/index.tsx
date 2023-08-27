@@ -1,6 +1,14 @@
 import { Descriptions, DescriptionsProps } from "antd";
 
-function Requirements({ graphics, memory, os, processor, storage }: any): JSX.Element {
+interface IRequirements {
+    graphics: string;
+    memory: string;
+    os: string;
+    processor: string;
+    storage: string;
+}
+
+function Requirements({ graphics, memory, os, processor, storage }: IRequirements): JSX.Element {
     const items: DescriptionsProps['items'] = [
         {
             key: '1',

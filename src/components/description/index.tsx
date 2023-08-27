@@ -1,7 +1,17 @@
 import { Badge, Descriptions, DescriptionsProps } from "antd";
 import dateToRu from "../../utils/dateToRu";
 
-function Description({ title, description, platform, developer, publisher, releaseDate, genre, status }: any): JSX.Element {
+interface IDescription {
+    description: string;
+    platform: string;
+    developer: string;
+    publisher: string;
+    releaseDate: string;
+    genre: string;
+    status: string;
+}
+
+function Description({ description, platform, developer, publisher, releaseDate, genre, status }: IDescription): JSX.Element {
     const items: DescriptionsProps['items'] = [
         {
             key: '1',
@@ -46,7 +56,7 @@ function Description({ title, description, platform, developer, publisher, relea
     ];
 
     return (
-        <Descriptions title={title} layout="vertical" bordered items={items} />
+        <Descriptions layout="vertical" bordered items={items} />
     );
 }
 

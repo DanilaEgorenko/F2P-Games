@@ -3,41 +3,59 @@ import Title from 'antd/es/typography/Title';
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import GameCard from "../../components/card";
+import { KEY } from '../../keys';
 import { genres, platforms, sorts } from './constants';
+import { IGames } from './interfaces';
 
 function Main() {
-	const [games, setGames] = useState([]);
+	const [games, setGames] = useState<IGames[]>([]);
 
-	const [category, setCategory] = useState<string | undefined>();
+	const [error, setError] = useState<string>();
+
+	//const [category, setCategory] = useState<string | undefined>();
 	const [platform, setPlatform] = useState<string | undefined>();
 	const [sortBy, setSortBy] = useState<string | undefined>();
 
-	const getCategory: string = category ? '&category=' + category : '';
+
+	// const category = useSelector((state: any) => state.category);
+	// console.log(category)
+	//const dispatch = useDispatch();
+
+	//const getCategory: string = category ? '&category=' + category : '';
 	const getPlatform: string = platform ? '&platform=' + platform : '';
 	const getSortBy: string = sortBy ? '&sort-by=' + sortBy : '';
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const fetchGames = () => {
-		return fetch(`https://free-to-play-games-database.p.rapidapi.com/api/games?${getPlatform}${getCategory}${getSortBy}`, {
+		return fetch(`https://free-to-play-games-database.p.rapidapi.com/api/games?${getPlatform}${getSortBy}`, {
 			headers: {
-				'X-RapidAPI-Key': 'ddd1992d06msh69dccc24485ab56p11eed8jsn63b3f65c7074',
+				'X-RapidAPI-Key': KEY,
 				'X-RapidAPI-Host': 'free-to-play-games-database.p.rapidapi.com'
 			},
 		})
-			.then(res => res.json())
-			.catch((e) => {
-				console.log(e);
+			.then(res => {
+				if (res.ok) return res.json();
+				//throw new Error(`Ошибка ${res.status}`);
+			})
+			.catch((e: Error) => {
+				setError(e.message);
 			});
 	}
 
 	useEffect(() => {
 		fetchGames()
-			.then((games: any) => {
+			.then((games: IGames[]) => {
 				setGames(games);
 			});
 	}, [fetchGames]);
 
-	if (!games.length) return <Spin size="large" />;
+	// if (error) return <Result
+	// 	status="error"
+	// 	title="Ошибка загрузки"
+	// 	subTitle={error}
+	// />
+
+	if (!games.length) return <Spin className="spin" size="large" />;
 
 	return (
 		<>
@@ -47,7 +65,7 @@ function Main() {
 					allowClear
 					style={{ width: 200 }}
 					placeholder="Жанр"
-					onChange={(value: string | undefined) => setCategory(value)}
+					onChange={(value: string | undefined) => value}
 					options={genres}
 				/>
 				<Select

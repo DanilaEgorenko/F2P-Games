@@ -5,37 +5,39 @@ import { useNavigate, useParams } from "react-router-dom";
 import CarouselList from "../../components/carousel";
 import Description from "../../components/description";
 import Requirements from "../../components/requirements";
+import { KEY } from "../../keys";
+import { IGame, IScreenshots } from "./interfaces";
 
 function Game() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [game, setGame] = useState<any>();
+  const [game, setGame] = useState<IGame>();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchGame = () => {
     return fetch(`https://free-to-play-games-database.p.rapidapi.com/api/game?id=${id}`, {
       headers: {
-        'X-RapidAPI-Key': 'ddd1992d06msh69dccc24485ab56p11eed8jsn63b3f65c7074',
+        'X-RapidAPI-Key': KEY,
         'X-RapidAPI-Host': 'free-to-play-games-database.p.rapidapi.com'
       },
     })
-      .then(res => res.json())
-      .catch((e) => {
-        console.log(e);
-      });
+      .then(res => {
+        if (res.ok) return res.json();
+        throw new Error(`Ошибка ${res.status}`);
+      })
   }
 
   useEffect(() => {
     fetchGame()
-      .then((data: any) => {
+      .then((data: IGame) => {
         setGame(data);
-        console.log(data);
       });
-  }, []);
+  }, [fetchGame]);
 
-  if (!game) return <Spin size="large" />;
+  if (!game) return <Spin className="spin" size="large" />;
 
-  const photos = [game.thumbnail, ...game.screenshots.map((el: any) => el.image)]
+  const photos = [game.thumbnail, ...game.screenshots.map((el: IScreenshots) => el.image)]
 
   return (
     <>
