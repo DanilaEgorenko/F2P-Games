@@ -9,6 +9,10 @@
 
 После этого автоматически запустится вкладка в браузере с веб-приложением на [localhost:3001](localhost:3001)
 
+Для корректной работы запросов в папке ```store``` в файлах-слайсах заменить KEY на собстенный ключ, полученный на https://rapidapi.com/digiwalls/api/free-to-play-games-database
+
+Например, 'ddd1992d06msh69dccc24485ab56p11eed8jsn63b3f65c7074'
+
 ## Стек
 - React 18
 - Redux 4
