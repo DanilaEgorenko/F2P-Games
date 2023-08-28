@@ -1,4 +1,4 @@
-export async function fetchRetry(url: string, options: any) {
+export async function fetchRetry(url: string, options: RequestInit): Promise<Response | undefined> {
     let count = 3;
     while (count > 0) {
         try {

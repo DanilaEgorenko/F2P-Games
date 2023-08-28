@@ -1,59 +1,40 @@
 import { Button, Divider, Result, Spin } from "antd";
 import Title from "antd/es/typography/Title";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import CarouselList from "../../components/carousel";
 import Description from "../../components/description";
 import Requirements from "../../components/requirements";
-import { KEY } from "../../keys";
-import { getCachedData, hasCachedData, saveData } from "../../utils/cache";
-import { fetchRetry } from "../../utils/fetchRetry";
+import { fetchGame, getError, getGame, isLoading } from "../../store/gameSlice";
+import { AppDispatch, RootState } from "../../store/store";
 import { IGame, IScreenshots } from "./interfaces";
 
 function Game() {
+  const useAppDispatch: () => AppDispatch = useDispatch
+  const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+  const dispatch = useAppDispatch();
+
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [game, setGame] = useState<IGame>();
-  const [error, setError] = useState<string>();
-
-  const fetchGame = (): Promise<IGame> => {
-    return fetchRetry(`https://free-to-play-games-database.p.rapidapi.com/api/game?id=${id}`, {
-      headers: {
-        'X-RapidAPI-Key': KEY,
-        'X-RapidAPI-Host': 'free-to-play-games-database.p.rapidapi.com'
-      },
-    })
-      .then(res => {
-        if (res?.ok) return res.json();
-        setError(`Ошибка ${res?.status}`);
-      })
-  }
+  const game: IGame = useAppSelector(getGame);
+  const error: Error | null = useAppSelector(getError);
+  const loading: boolean = useAppSelector(isLoading);
 
   useEffect(() => {
-    if (id && hasCachedData(id)) {
-      setGame(getCachedData(id));
-    } else {
-      fetchGame()
-        .then((data: IGame) => {
-          setGame(data);
-          return data;
-        })
-        .then(data => {
-          if (id && data) saveData(id, data);
-        });
-    }
-  }, []);
+    dispatch(fetchGame(id));
+  }, [id]);
 
   if (error) return <Result
     status="error"
     title="Ошибка загрузки"
-    subTitle={error}
+    subTitle={error.message}
   />
 
-  if (!game) return <Spin className="spin" size="large" />;
+  if (!game || loading) return <Spin className="spin" size="large" />;
 
-  const photos = [game.thumbnail, ...game.screenshots.map((el: IScreenshots) => el.image)]
+  const photos: string[] = [game.thumbnail, ...game.screenshots.map((el: IScreenshots) => el.image)]
 
   return (
     <>
@@ -69,3 +50,4 @@ function Game() {
 }
 
 export default Game;
+

@@ -4,7 +4,7 @@ import { IGames } from "../pages/main/interfaces";
 import { fetchRetry } from "../utils/fetchRetry";
 
 export const fetchGames = createAsyncThunk('games/getGamesList', async (_, { getState, rejectWithValue }: any) => {
-    const { category, platform, sortBy }: IState = getState();
+    const { category, platform, sortBy }: IState = getState().games;
     return fetchRetry(`https://free-to-play-games-database.p.rapidapi.com/api/games?${category ? '&category=' + category : ''}${platform ? '&platform=' + platform : ''}${sortBy ? '&sort-by=' + sortBy : ''}`, {
         headers: {
             'X-RapidAPI-Key': KEY,
@@ -67,9 +67,9 @@ const gamesSlice = createSlice({
     }
 });
 
-export const getGames = (state: IState) => state.games.data;
-export const getError = (state: IState) => state.games.error;
-export const isLoading = (state: IState) => state.games.loading;
+export const getGames = (state: any) => state.games.games.data;
+export const getError = (state: any) => state.games.games.error;
+export const isLoading = (state: any) => state.games.games.loading;
 
 export const { changeCategory, changePlatform, changeSortBy } = gamesSlice.actions;
 

@@ -35,7 +35,7 @@ function Main() {
 	const loading: boolean = useAppSelector(isLoading);
 
 	useEffect(() => {
-		dispatch(fetchGames())
+		dispatch(fetchGames());
 	}, [])
 
 	if (error) return <Result
@@ -80,7 +80,7 @@ function Main() {
 				/>
 			</Space >
 			<Divider />
-			{loading && <Spin className="spin" size="large" />}
+			{(!games || loading) && <Spin className="spin" size="large" />}
 			{!loading && <Row gutter={[20, 20]} justify={'center'}>
 				{games.map(({ title, release_date, publisher, genre, thumbnail, id }: IGames) => {
 					return <Col key={title}>
