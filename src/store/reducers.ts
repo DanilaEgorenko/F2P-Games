@@ -1,4 +1,6 @@
-export const reducerFiltersAndSort = (state: any, action: { type: string; payload: any; }) => {
+import initialState, { IState } from "./initialState";
+
+export const reducerFiltersAndSort = (state: IState = initialState, action: { type: string; payload: any }) => {
     switch (action.type) {
         case 'changeCategory':
             return { ...state, category: action.payload };

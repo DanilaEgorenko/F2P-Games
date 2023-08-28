@@ -1,9 +1,12 @@
 import { Col, Divider, Result, Row, Select, Space, Spin } from 'antd';
 import Title from 'antd/es/typography/Title';
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import GameCard from '../../components/card';
 import { KEY } from '../../keys';
+import { changeCategory, changePlatform, changeSortBy } from '../../store';
+import { getCategory, getPlatform, getSortBy } from '../../store/selectors';
 import { fetchRetry } from '../../utils/fetchRetry';
 import { genres, platforms, sorts } from './constants';
 import { IGames } from './interfaces';
@@ -13,21 +16,17 @@ function Main() {
 
 	const [error, setError] = useState<string>();
 
-	const [category, setCategory] = useState<string | undefined>();
-	const [platform, setPlatform] = useState<string | undefined>();
-	const [sortBy, setSortBy] = useState<string | undefined>();
+	//const [category, setCategory] = useState<string | undefined>();
+	//const [platform, setPlatform] = useState<string | undefined>();
+	//const [sortBy, setSortBy] = useState<string | undefined>();
 
-
-	// const category = useSelector((state: any) => state.category);
-	// console.log(category)
-	//const dispatch = useDispatch();
-
-	const getCategory: string = category ? '&category=' + category : '';
-	const getPlatform: string = platform ? '&platform=' + platform : '';
-	const getSortBy: string = sortBy ? '&sort-by=' + sortBy : '';
+	const category = useSelector(getCategory);
+	const platform = useSelector(getPlatform);
+	const sortBy = useSelector(getSortBy);
+	const dispatch = useDispatch();
 
 	const fetchGames = () => {
-		return fetchRetry(`https://free-to-play-games-database.p.rapidapi.com/api/games?${getCategory}${getPlatform}${getSortBy}`, {
+		return fetchRetry(`https://free-to-play-games-database.p.rapidapi.com/api/games?${category}${platform}${sortBy}`, {
 			headers: {
 				'X-RapidAPI-Key': KEY,
 				'X-RapidAPI-Host': 'free-to-play-games-database.p.rapidapi.com'
@@ -81,21 +80,21 @@ function Main() {
 					allowClear
 					style={{ width: 200 }}
 					placeholder="Жанр"
-					onChange={(value: string | undefined) => setCategory(value)}
+					onChange={(value: string | undefined) => dispatch(changeCategory(value))}
 					options={genres}
 				/>
 				<Select
 					allowClear
 					style={{ width: 200 }}
 					placeholder="Платформа"
-					onChange={(value: string | undefined) => setPlatform(value)}
+					onChange={(value: string | undefined) => dispatch(changePlatform(value))}
 					options={platforms}
 				/>
 				<Select
 					allowClear
 					style={{ width: 200 }}
 					placeholder="Сортировка"
-					onChange={(value: string | undefined) => setSortBy(value)}
+					onChange={(value: string | undefined) => dispatch(changeSortBy(value))}
 					options={sorts}
 				/>
 			</Space >

@@ -1,5 +1,4 @@
 export function changeCategory(category: string | undefined) {
-    console.log(category);
     return {
         type: 'changeCategory',
         payload: category,
