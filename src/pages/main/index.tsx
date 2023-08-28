@@ -1,52 +1,18 @@
 import { Col, Divider, Result, Row, Select, Space, Spin } from 'antd';
 import Title from 'antd/es/typography/Title';
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from "react";
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import GameCard from '../../components/card';
-import { KEY } from '../../keys';
-import { changeCategory, changePlatform, changeSortBy } from '../../store';
-import { getCategory, getPlatform, getSortBy } from '../../store/selectors';
-import { fetchRetry } from '../../utils/fetchRetry';
+import { changeCategory, changePlatform, changeSortBy, fetchGames, getError, getGames, isLoading } from '../../store/gamesSlice';
+import { AppDispatch, RootState } from '../../store/store';
 import { genres, platforms, sorts } from './constants';
 import { IGames } from './interfaces';
 
 function Main() {
-	const [games, setGames] = useState<IGames[]>([]);
-
-	const [error, setError] = useState<string>();
-
-	//const [category, setCategory] = useState<string | undefined>();
-	//const [platform, setPlatform] = useState<string | undefined>();
-	//const [sortBy, setSortBy] = useState<string | undefined>();
-
-	const category = useSelector(getCategory);
-	const platform = useSelector(getPlatform);
-	const sortBy = useSelector(getSortBy);
-	const dispatch = useDispatch();
-
-	const fetchGames = () => {
-		return fetchRetry(`https://free-to-play-games-database.p.rapidapi.com/api/games?${category}${platform}${sortBy}`, {
-			headers: {
-				'X-RapidAPI-Key': KEY,
-				'X-RapidAPI-Host': 'free-to-play-games-database.p.rapidapi.com'
-			},
-		})
-			.then(res => {
-				if (res?.ok) return res.json();
-				throw new Error(`Ошибка ${res?.status}`);
-			})
-			.catch((e: Error) => {
-				setError(e.message);
-			});
-	}
-
-	useEffect(() => {
-		fetchGames()
-			.then((games: IGames[]) => {
-				setGames(games);
-			});
-	}, []);
+	const useAppDispatch: () => AppDispatch = useDispatch
+	const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+	const dispatch = useAppDispatch();
 
 	// const Row = ({ index, style }: any) => {
 	// 	console.log(index)
@@ -64,13 +30,19 @@ function Main() {
 	// 	</Col>
 	// };
 
+	const games: IGames[] = useAppSelector(getGames);
+	const error: Error | null = useAppSelector(getError);
+	const loading: boolean = useAppSelector(isLoading);
+
+	useEffect(() => {
+		dispatch(fetchGames())
+	}, [])
+
 	if (error) return <Result
 		status="error"
 		title="Ошибка загрузки"
-		subTitle={error}
+		subTitle={error.message}
 	/>
-
-	if (!games.length) return <Spin className="spin" size="large" />;
 
 	return (
 		<>
@@ -80,27 +52,37 @@ function Main() {
 					allowClear
 					style={{ width: 200 }}
 					placeholder="Жанр"
-					onChange={(value: string | undefined) => dispatch(changeCategory(value))}
+					onChange={(value: string | undefined) => {
+						dispatch(changeCategory(value))
+						dispatch(fetchGames())
+					}}
 					options={genres}
 				/>
 				<Select
 					allowClear
 					style={{ width: 200 }}
 					placeholder="Платформа"
-					onChange={(value: string | undefined) => dispatch(changePlatform(value))}
+					onChange={(value: string | undefined) => {
+						dispatch(changePlatform(value))
+						dispatch(fetchGames())
+					}}
 					options={platforms}
 				/>
 				<Select
 					allowClear
 					style={{ width: 200 }}
 					placeholder="Сортировка"
-					onChange={(value: string | undefined) => dispatch(changeSortBy(value))}
+					onChange={(value: string | undefined) => {
+						dispatch(changeSortBy(value))
+						dispatch(fetchGames())
+					}}
 					options={sorts}
 				/>
 			</Space >
 			<Divider />
-			<Row gutter={[20, 20]} justify={'center'}>
-				{games.map(({ title, release_date, publisher, genre, thumbnail, id }) => {
+			{loading && <Spin className="spin" size="large" />}
+			{!loading && <Row gutter={[20, 20]} justify={'center'}>
+				{games.map(({ title, release_date, publisher, genre, thumbnail, id }: IGames) => {
 					return <Col key={title}>
 						<Link to={'/game/' + id}>
 							<GameCard
@@ -121,7 +103,7 @@ function Main() {
 				>
 					{Row}
 				</List> */}
-			</Row >
+			</Row >}
 		</>
 	);
 }

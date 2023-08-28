@@ -1,4 +1,4 @@
-import { Button, Divider, Spin } from "antd";
+import { Button, Divider, Result, Spin } from "antd";
 import Title from "antd/es/typography/Title";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -15,6 +15,7 @@ function Game() {
   const navigate = useNavigate();
 
   const [game, setGame] = useState<IGame>();
+  const [error, setError] = useState<string>();
 
   const fetchGame = (): Promise<IGame> => {
     return fetchRetry(`https://free-to-play-games-database.p.rapidapi.com/api/game?id=${id}`, {
@@ -25,7 +26,7 @@ function Game() {
     })
       .then(res => {
         if (res?.ok) return res.json();
-        throw new Error(`Ошибка ${res?.status}`);
+        setError(`Ошибка ${res?.status}`);
       })
   }
 
@@ -39,10 +40,16 @@ function Game() {
           return data;
         })
         .then(data => {
-          if (id) saveData(id, data);
+          if (id && data) saveData(id, data);
         });
     }
   }, []);
+
+  if (error) return <Result
+    status="error"
+    title="Ошибка загрузки"
+    subTitle={error}
+  />
 
   if (!game) return <Spin className="spin" size="large" />;
 
