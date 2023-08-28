@@ -1,8 +1,8 @@
 import { Col, Divider, Result, Row, Select, Space, Spin } from 'antd';
 import Title from 'antd/es/typography/Title';
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import GameCard from "../../components/card";
+import { Link } from 'react-router-dom';
+import GameCard from '../../components/card';
 import { KEY } from '../../keys';
 import { fetchRetry } from '../../utils/fetchRetry';
 import { genres, platforms, sorts } from './constants';
@@ -26,7 +26,6 @@ function Main() {
 	const getPlatform: string = platform ? '&platform=' + platform : '';
 	const getSortBy: string = sortBy ? '&sort-by=' + sortBy : '';
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const fetchGames = () => {
 		return fetchRetry(`https://free-to-play-games-database.p.rapidapi.com/api/games?${getCategory}${getPlatform}${getSortBy}`, {
 			headers: {
@@ -48,7 +47,23 @@ function Main() {
 			.then((games: IGames[]) => {
 				setGames(games);
 			});
-	}, [fetchGames]);
+	}, []);
+
+	// const Row = ({ index, style }: any) => {
+	// 	console.log(index)
+	// 	const { title, release_date, publisher, genre, thumbnail, id } = games[index];
+	// 	return <Col key={title}>
+	// 		<Link to={'/game/' + id}>
+	// 			<GameCard
+	// 				name={title}
+	// 				releaseDate={release_date}
+	// 				publisher={publisher}
+	// 				genre={genre}
+	// 				img={thumbnail}
+	// 			></GameCard>
+	// 		</Link>
+	// 	</Col>
+	// };
 
 	if (error) return <Result
 		status="error"
@@ -99,6 +114,14 @@ function Main() {
 						</Link>
 					</Col>
 				})}
+				{/* <List
+					height={150}
+					itemCount={1000}
+					itemSize={35}
+					width={300}
+				>
+					{Row}
+				</List> */}
 			</Row >
 		</>
 	);

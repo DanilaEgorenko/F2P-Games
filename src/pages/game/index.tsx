@@ -6,6 +6,7 @@ import CarouselList from "../../components/carousel";
 import Description from "../../components/description";
 import Requirements from "../../components/requirements";
 import { KEY } from "../../keys";
+import { getCachedData, hasCachedData, saveData } from "../../utils/cache";
 import { fetchRetry } from "../../utils/fetchRetry";
 import { IGame, IScreenshots } from "./interfaces";
 
@@ -15,8 +16,7 @@ function Game() {
 
   const [game, setGame] = useState<IGame>();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchGame = () => {
+  const fetchGame = (): Promise<IGame> => {
     return fetchRetry(`https://free-to-play-games-database.p.rapidapi.com/api/game?id=${id}`, {
       headers: {
         'X-RapidAPI-Key': KEY,
@@ -30,11 +30,19 @@ function Game() {
   }
 
   useEffect(() => {
-    fetchGame()
-      .then((data: IGame) => {
-        setGame(data);
-      });
-  }, [fetchGame]);
+    if (id && hasCachedData(id)) {
+      setGame(getCachedData(id));
+    } else {
+      fetchGame()
+        .then((data: IGame) => {
+          setGame(data);
+          return data;
+        })
+        .then(data => {
+          if (id) saveData(id, data);
+        });
+    }
+  }, []);
 
   if (!game) return <Spin className="spin" size="large" />;
 

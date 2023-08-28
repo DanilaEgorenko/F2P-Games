@@ -13,3 +13,7 @@ body {
     place-content: center;
     height: 100lvh;
 }
+
+img {
+    object-fit: contain;
+}
