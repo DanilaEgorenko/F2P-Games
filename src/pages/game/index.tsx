@@ -18,7 +18,7 @@ function Game() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const game: IGame = useAppSelector(getGame);
+  const game: IGame | null = useAppSelector(getGame);
   const error: Error | null = useAppSelector(getError);
   const loading: boolean = useAppSelector(isLoading);
 

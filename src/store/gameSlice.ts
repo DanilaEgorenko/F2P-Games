@@ -4,7 +4,7 @@ import { IGame } from "../pages/game/interfaces";
 import { getCachedData, hasCachedData, saveData } from "../utils/cache";
 import { fetchRetry } from "../utils/fetchRetry";
 
-export const fetchGame = createAsyncThunk('games/getGamesList', async (id: string | undefined, { rejectWithValue }: any) => {
+export const fetchGame = createAsyncThunk('game/getGame', async (id: string | undefined, { rejectWithValue }: any) => {
     if (id && hasCachedData(id)) {
         return getCachedData(id);
     }
@@ -27,7 +27,7 @@ export const fetchGame = createAsyncThunk('games/getGamesList', async (id: strin
 })
 
 interface IState {
-    game: IGame,
+    game: IGame | null,
     loading: boolean,
     error: Error | null,
 }
@@ -54,8 +54,8 @@ const gameSlice = createSlice({
     }
 });
 
-export const getGame = (state: any) => state.game.game;
-export const getError = (state: any) => state.game.error;
-export const isLoading = (state: any) => state.game.loading;
+export const getGame = (state: { game: IState }) => state.game.game;
+export const getError = (state: { game: IState }) => state.game.error;
+export const isLoading = (state: { game: IState }) => state.game.loading;
 
 export default gameSlice.reducer;
