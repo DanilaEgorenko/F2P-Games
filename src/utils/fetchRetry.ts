@@ -10,4 +10,4 @@ export async function fetchRetry(url: string, options: RequestInit): Promise<Res
         }
         count -= 1;
     }
-}  
+}

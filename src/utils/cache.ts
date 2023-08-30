@@ -20,6 +20,7 @@ export function getCachedData(id: string): IGame | undefined {
     const parsedData = JSON.parse(savedData as string);
     if (parsedData.expiration <= Date.now()) {
         localStorage.removeItem(id);
+        return undefined;
     }
     return parsedData.value as IGame;
 }
