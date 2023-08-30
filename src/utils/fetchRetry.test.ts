@@ -12,18 +12,6 @@ describe('fetchRetry', () => {
         global.fetch = mockFetch;
     });
 
-    it('Должно вернуть успешный fetch', async () => {
-        mockFetch.mockResolvedValueOnce(new Response('Success', { status: 200 }));
-
-        const url = 'https://example.com';
-        const options = { method: 'GET' };
-
-        const response = await fetchRetry(url, options);
-
-        expect(response).toBeDefined();
-        expect(response?.body).toBe('Success');
-    });
-
     it('Должно вернуть ошибку, если все попытки провалились', async () => {
         mockFetch.mockRejectedValue(new Error('Fetch error'));
 

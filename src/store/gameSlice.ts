@@ -4,7 +4,7 @@ import { IGame } from "../pages/game/interfaces";
 import { getCachedData, hasCachedData, saveData } from "../utils/cache";
 import { fetchRetry } from "../utils/fetchRetry";
 
-export const fetchGame = createAsyncThunk('game/getGame', async (id: string | undefined, { rejectWithValue }: any) => {
+export const fetchGame = createAsyncThunk('game/getGame', async (id: string | undefined, { rejectWithValue }) => {
     if (id && hasCachedData(id)) {
         return getCachedData(id);
     }
@@ -14,9 +14,7 @@ export const fetchGame = createAsyncThunk('game/getGame', async (id: string | un
             'X-RapidAPI-Host': 'free-to-play-games-database.p.rapidapi.com'
         },
     })
-        .then(res => {
-            return res?.json();
-        })
+        .then(res => res?.json())
         .then(res => {
             if (id && res) saveData(id, res);
             return res

@@ -3,17 +3,16 @@ import { KEY } from "../keys";
 import { IGames } from "../pages/main/interfaces";
 import { fetchRetry } from "../utils/fetchRetry";
 
-export const fetchGames = createAsyncThunk('games/getGames', async (_, { getState, rejectWithValue }: any) => {
+export const fetchGames = createAsyncThunk('games/getGames', async (abortController: AbortController | undefined, { getState, rejectWithValue }: any) => {
     const { category, platform, sortBy }: IState = getState().games;
     return fetchRetry(`https://free-to-play-games-database.p.rapidapi.com/api/games?${category ? '&category=' + category : ''}${platform ? '&platform=' + platform : ''}${sortBy ? '&sort-by=' + sortBy : ''}`, {
         headers: {
             'X-RapidAPI-Key': KEY,
             'X-RapidAPI-Host': 'free-to-play-games-database.p.rapidapi.com'
         },
+        //signal: abortController?.signal,
     })
-        .then((res: Response | undefined) => {
-            return res?.json();
-        })
+        .then(res => res?.json())
         .catch((e: Error) => {
             return rejectWithValue(e);
         });

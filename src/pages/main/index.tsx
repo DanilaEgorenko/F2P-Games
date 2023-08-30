@@ -1,6 +1,6 @@
 import { Col, Divider, Result, Row, Select, Space, Spin } from 'antd';
 import Title from 'antd/es/typography/Title';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import GameCard from '../../components/card';
@@ -14,7 +14,7 @@ function Main() {
 	const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 	const dispatch = useAppDispatch();
 
-	// const Row = ({ index, style }: any) => {
+	// const Row = ({ index, style }) => {
 	// 	console.log(index)
 	// 	const { title, release_date, publisher, genre, thumbnail, id } = games[index];
 	// 	return <Col key={title}>
@@ -34,9 +34,15 @@ function Main() {
 	const error: Error | null = useAppSelector(getError);
 	const loading: boolean = useAppSelector(isLoading);
 
+	const [abortController] = useState(new AbortController());
+
 	useEffect(() => {
-		dispatch(fetchGames());
-	}, [])
+		dispatch(fetchGames(abortController));
+
+		return () => {
+			abortController.abort();
+		};
+	}, [abortController, dispatch])
 
 	if (error) return <Result
 		status="error"
@@ -54,7 +60,7 @@ function Main() {
 					placeholder="Жанр"
 					onChange={(value: string | undefined) => {
 						dispatch(changeCategory(value))
-						dispatch(fetchGames())
+						dispatch(fetchGames(abortController))
 					}}
 					options={genres}
 				/>
@@ -64,7 +70,7 @@ function Main() {
 					placeholder="Платформа"
 					onChange={(value: string | undefined) => {
 						dispatch(changePlatform(value))
-						dispatch(fetchGames())
+						dispatch(fetchGames(abortController))
 					}}
 					options={platforms}
 				/>
@@ -74,7 +80,7 @@ function Main() {
 					placeholder="Сортировка"
 					onChange={(value: string | undefined) => {
 						dispatch(changeSortBy(value))
-						dispatch(fetchGames())
+						dispatch(fetchGames(abortController))
 					}}
 					options={sorts}
 				/>
